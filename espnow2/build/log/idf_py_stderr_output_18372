@@ -1,0 +1,10 @@
+CMake Error at C:/Users/ASUS/esp/v5.2.2/esp-idf/tools/cmake/component.cmake:250 (message):
+  ERROR: Cannot find component list file.  Please make sure this script is
+  executed from CMake
+
+Call Stack (most recent call first):
+  C:/Users/ASUS/esp/v5.2.2/esp-idf/tools/cmake/build.cmake:578 (__component_get_requirements)
+  C:/Users/ASUS/esp/v5.2.2/esp-idf/tools/cmake/project.cmake:605 (idf_build_process)
+  CMakeLists.txt:6 (project)
+
+
