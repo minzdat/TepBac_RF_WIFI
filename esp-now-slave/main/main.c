@@ -26,6 +26,8 @@ static void example_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_
 {
     ESP_LOGI(TAG, "Send callback: " MACSTR ", status: %d", MAC2STR(mac_addr), status);
 }
+    bool addd=true;
+    esp_now_peer_info_t peer_info = {};
 
 // Callback function to handle received data
 static void example_espnow_recv_cb(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len)
@@ -39,7 +41,11 @@ static void example_espnow_recv_cb(const esp_now_recv_info_t *recv_info, const u
     // Prepare response message
     const char *response_message = "Message received!";
     size_t response_message_len = strlen(response_message);
-
+    if (addd){
+    memcpy(peer_info.peer_addr, recv_info->src_addr, 6);
+    esp_now_add_peer(&peer_info);
+    addd=false;
+    }
     // Send response to the sender device
     esp_err_t result = esp_now_send(sender_mac, data, len);
     if (result != ESP_OK) {
