@@ -6,7 +6,7 @@
 #include <string.h>
 #include <esp_mac.h> 
 static const char *TAG = "ESP-NOW Receiver";
-// uint8_t mac_a[6] = {0xC4, 0xFD, 0x57, 0xC7, 0xDC, 0x58};
+// uint8_t mac_a[6] = {0xC4, 0xDD, 0x57, 0xC7, 0xDC, 0x58};
 // uint8_t mac_r[6] = {0x1A, 0x1E, 0xCA, 0x3F, 0x14, 0x1E};
 
 // uint8_t mac_f[6] = {0x2E, 0x25, 0xCA, 0x3F, 0x28, 0x26};
@@ -17,7 +17,11 @@ typedef struct {
         char data2[250];
  // Chuỗi dữ liệu
 } esp_now_message_t;
+    esp_now_peer_info_t peer_info = {};
+
 int count=0;
+    bool addd=true;
+
 void recv_callback(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len) {
     if ((memcmp(data, "Hello from Server!", 10) != 0)&&(len==50)) {
     esp_now_message_t *message = (esp_now_message_t *)data;
@@ -29,8 +33,14 @@ void recv_callback(const esp_now_recv_info_t *recv_info, const uint8_t *data, in
     sprintf((char *)response, "Response: %d", count);
     ESP_LOGI(TAG,"%s",response);
 
-    uint8_t mac_b[6] ={0x24, 0x58, 0x7C, 0xF0, 0xB4, 0xD4};
-    esp_now_send(mac_b, response, sizeof(response));
+    // uint8_t mac_b[6] ={0x24, 0x58, 0x7C, 0xF0, 0xB4, 0xD4};
+    if (addd){
+    memcpy(peer_info.peer_addr, recv_info->src_addr, 6);
+    esp_now_add_peer(&peer_info);
+    addd=false;
+    }
+    esp_now_send(recv_info->src_addr, response, sizeof(response));
+
 
     }
 }
@@ -63,12 +73,10 @@ void app_main(void) {
 
 
 
-    uint8_t mac_b[6] ={0x24, 0x58, 0x7C, 0xF0, 0xB4, 0xD4};
+    // uint8_t mac_b[6] ={0x24, 0x58, 0x7C, 0xF0, 0xB4, 0xD4};
 
-    esp_now_peer_info_t peer_info = {};
-    memcpy(peer_info.peer_addr, mac_b, 6);
-    esp_now_add_peer(&peer_info);
-        uint8_t data[] = "Hello ESP-NOW Hoai Nam 2";
+    // memcpy(peer_info.peer_addr, mac_a, 6);
+    // esp_now_add_peer(&peer_info);
     // while (1)
     // {
     // vTaskDelay(3000/ portTICK_PERIOD_MS);

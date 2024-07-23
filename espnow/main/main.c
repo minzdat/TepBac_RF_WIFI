@@ -25,18 +25,25 @@ typedef struct {
 //     uint8_t * des_addr;                      /**< Destination address of ESPNOW packet */
 //     wifi_pkt_rx_ctrl_t * rx_ctrl;            /**< Rx control info of ESPNOW packet */
 // } esp_now_recv_info_t;
+    uint8_t mac_a[6] ={0xDC, 0xDA, 0x0C, 0x0D, 0x41, 0xAC};
 
 void recv_callback(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len) {
     
+        if ((memcmp(recv_info->src_addr, mac_a, 6) == 0)&&(len==50)) {
         // if ((memcmp(data, "Hello from Server!", 10) != 0)&&(len==50)) {
+
     stop=esp_timer_get_time();
     ESP_LOGW(TAG, "Received data from: " MACSTR ", len: %d", MAC2STR(recv_info->src_addr), len);
     esp_now_message_t *message = (esp_now_message_t *)data;
     ESP_LOGW(TAG, "Received data: %s", message->data);
         time_s=stop-start;
     ESP_LOGE(TAG, "time= %d ms", time_s/1000);
+    // int8_t rssi = rx_ctrl->rssi;
+        int8_t rssi = recv_info->rx_ctrl->rssi;
+
+        ESP_LOGI(TAG, "RSSI: %d", rssi);
     // ESP_LOGI(TAG, "Received Data: %.*s\n", data_len, data);
-    // }
+    }
 }
 // void recv_callback(const uint8_t *mac_addr, const uint8_t *data, int len) {
 //         if ((memcmp(data, "Hello from Server!", 10) != 0)&&(len==50)) {
@@ -89,7 +96,6 @@ void app_main(void) {
 
 
     // uint8_t mac_a[6] ={0x34, 0x85, 0x18, 0x03, 0x95, 0x08}; // MAC của thiết bị nhận
-    uint8_t mac_a[6] ={0xDC, 0xDA, 0x0C, 0x0D, 0x41, 0xAC};
     esp_now_peer_info_t peer_info = {};
     memcpy(peer_info.peer_addr, mac_a, 6);
     esp_now_add_peer(&peer_info);
