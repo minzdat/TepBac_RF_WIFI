@@ -13,37 +13,60 @@
 #define MACSTR                 "%02x:%02x:%02x:%02x:%02x:%02x"
 
 // Tag for logging
-static const char *TAG = "espnow_example";
+static const char *TAG = "espnow_slave";
+char messageq[] = "hi master___";
+
+typedef struct {
+    // int data;
+        char data[250]; 
+        char data2[250];
+ // Chuỗi dữ liệu
+} esp_now_message_t;
+    esp_now_peer_info_t peer_info = {};
+
+int count=0;
+    bool addd=true;
 
 // Address of the target device (for sending unicast)
-static uint8_t target_mac[ESP_NOW_ETH_ALEN] = { 0xf4, 0x12, 0xfa, 0x42, 0xa3, 0xdc };
-
+//static uint8_t target_mac[ESP_NOW_ETH_ALEN] = { 0xf4, 0x12, 0xfa, 0x42, 0xa3, 0xdc };
+//static uint8_t target_mac[6] = {0x48, 0x27, 0xe2, 0xc9, 0x7d, 0x08};
 // Address of the sender device (for responding)
-static uint8_t sender_mac[ESP_NOW_ETH_ALEN] = { 0 };
-
+static uint8_t sender_mac[ESP_NOW_ETH_ALEN];
+static uint8_t broadcast_mac[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 // Callback function to handle send status
 static void example_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
-    ESP_LOGI(TAG, "Send callback: " MACSTR ", status: %d", MAC2STR(mac_addr), status);
+    ESP_LOGI(TAG, "Send 1 callback: " MACSTR ", status: %d", MAC2STR(mac_addr), status);
 }
 
 // Callback function to handle received data
 static void example_espnow_recv_cb(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len)
 {
-    ESP_LOGI(TAG, "Receive callback: " MACSTR ", len: %d", MAC2STR(recv_info->src_addr), len);
-    ESP_LOGI(TAG, "Data: %.*s", len, data);
+    ESP_LOGE(TAG, "Receive 1 callback: " MACSTR ", len: %d", MAC2STR(recv_info->src_addr), len);
+    esp_now_message_t *message = (esp_now_message_t *)data;
+    ESP_LOGI(TAG, "Received data: %s", message->data);
+    count++;
+    uint8_t response[50] ;
+    sprintf((char *)response, "Response___: %d", count);
+    ESP_LOGI(TAG,"%s",response);
 
+    //ESP_LOGI(TAG, "Data: %.*s", len, data);
+    //uint8_t * mac_addr = recv_info->src_addr;  ///note
     // Save sender MAC address
     memcpy(sender_mac, recv_info->src_addr, ESP_NOW_ETH_ALEN);
 
-    // Prepare response message
-    const char *response_message = "Message received!";
-    size_t response_message_len = strlen(response_message);
 
+    if (addd){
+        memcpy(peer_info.peer_addr, recv_info->src_addr, 6);
+        esp_now_add_peer(&peer_info);
+        addd=false;
+    }
     // Send response to the sender device
-    esp_err_t result = esp_now_send(sender_mac, data, len);
+    esp_err_t result = esp_now_send(recv_info->src_addr, response, sizeof(response));
     if (result != ESP_OK) {
-        ESP_LOGE(TAG, "Send error: %d", result);
+        ESP_LOGE(TAG, "Send 1 error: %d", result);
+    } else {
+        ESP_LOGI(TAG, "Response sent to: " MACSTR, MAC2STR(sender_mac));
     }
 }
 
@@ -53,18 +76,19 @@ static esp_err_t example_espnow_init(void)
     ESP_ERROR_CHECK(esp_now_init());
 
     // Register the send callback function
-    ESP_ERROR_CHECK(esp_now_register_send_cb(example_espnow_send_cb));
+    // ESP_ERROR_CHECK(esp_now_register_send_cb(example_espnow_send_cb));
 
     // Register the receive callback function
     ESP_ERROR_CHECK(esp_now_register_recv_cb(example_espnow_recv_cb));
-
+    ESP_ERROR_CHECK(esp_now_register_send_cb(example_espnow_send_cb));
     // Add a peer (target device) for unicast
     esp_now_peer_info_t peer_info = {
         .channel = 0, // Use the current channel
         .ifidx = ESP_IF_WIFI_STA,
         .encrypt = false,
     };
-    memcpy(peer_info.peer_addr, target_mac, ESP_NOW_ETH_ALEN);
+    
+    memcpy(peer_info.peer_addr, sender_mac, ESP_NOW_ETH_ALEN);///
     ESP_ERROR_CHECK(esp_now_add_peer(&peer_info));
 
     // Add a broadcast peer (optional, as broadcast messages do not require peer addition)
@@ -85,13 +109,13 @@ static void example_espnow_task(void *pvParameter)
     size_t message_len = strlen(message);
 
     while (1) {
-        ESP_LOGI(TAG, "Sending message to " MACSTR ": %s", MAC2STR(target_mac), message);
+        // ESP_LOGI(TAG, "Sending message to " MACSTR ": %s", MAC2STR(target_mac), message);
 
         // Send data to the specified MAC address (unicast)
-        esp_err_t result = esp_now_send(target_mac, (const uint8_t *)message, message_len);
-        if (result != ESP_OK) {
-            ESP_LOGE(TAG, "Send error: %d", result);
-        }
+        // esp_err_t result = esp_now_send(target_mac, (const uint8_t *)message, message_len);
+        // if (result != ESP_OK) {
+        //     ESP_LOGE(TAG, "Send error: %d", result);
+        // }
 
         // Delay before sending the next message
         vTaskDelay(2000 / portTICK_PERIOD_MS); // 2 seconds delay
