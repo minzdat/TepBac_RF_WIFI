@@ -11,6 +11,7 @@
 #include "esp_http_client.h"
 #include "esp_timer.h"
 
+#include "esp_now.h"
 // #include "protocol_examples_common.h"
 
 // #include "esp_ping.h"
@@ -131,16 +132,30 @@ void wifi_init_softap(const char* w_ssid,const char* w_pass) {
 
 
 
+
+uint8_t mac_c[6] ={0x4A, 0x77, 0xd0, 0x7b, 0x87, 0xAF};
+
+void wifi_init_esp_now(void) {
+    // wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    // ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    // esp_wifi_set_channel(3, WIFI_SECOND_CHAN_NONE);
+    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_now_init());
+    // ESP_ERROR_CHECK(esp_now_set_pmk(pmk));
+    // ESP_ERROR_CHECK(esp_now_register_recv_cb(recv_callback));
+    // ESP_ERROR_CHECK(esp_now_register_send_cb(send_callback));
+    // ESP_ERROR_CHECK(esp_wifi_set_mac(ESP_IF_WIFI_STA, mac_c));
+    uint8_t mac[6];
+    ESP_ERROR_CHECK(esp_wifi_get_mac(ESP_IF_WIFI_STA, mac));
+    ESP_LOGE(TAG, "MAC Address: "MACSTR,MAC2STR(mac));
+} //for esp-now
+
 static void http_cleanup(esp_http_client_handle_t client)
 {
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
 }
-
-// #define CONFIG_EXAMPLE_FIRMWARE_UPG_URL "https://www.google.com"
-// #define CONFIG_EXAMPLE_FIRMWARE_UPG_URL "http://www.example.com"
-// #define CONFIG_EXAMPLE_FIRMWARE_UPG_URL "http://35.240.204.122"
-// static void uart_event_task(void *pvParameters)
 
 
 

@@ -422,3 +422,18 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("D:/esp32/espnow/build/esp-idf/main/cmake_install.cmake")
 endif()
 
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/esp32/espnow/build/esp-idf/Global/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/esp32/espnow/build/esp-idf/Wifi/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("D:/esp32/espnow/build/esp-idf/Ota/cmake_install.cmake")
+endif()
+

@@ -7,6 +7,8 @@
 #include <esp_mac.h>
 #include "esp_timer.h"
 
+
+#include "connect_wifi.h"
 static const char *TAG = "ESP-NOW Sender";
 
 
@@ -86,8 +88,6 @@ void setup_esp_now_encryption() {
 uint8_t mac_c[6] ={0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
 
 void init_esp_now() {
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -101,7 +101,7 @@ void init_esp_now() {
     // ESP_ERROR_CHECK(esp_wifi_set_mac(ESP_IF_WIFI_STA, mac_c));
     uint8_t mac[6];
     ESP_ERROR_CHECK(esp_wifi_get_mac(ESP_IF_WIFI_STA, mac));
-    ESP_LOGI(TAG, "MAC Address: "MACSTR,MAC2STR(mac));
+    ESP_LOGI(TAG, "MAC Addressssss: "MACSTR,MAC2STR(mac));
 }
 
 
@@ -119,8 +119,16 @@ void set_wifi_max_tx_power(void) {
 
 
 void app_main(void) {
-    ESP_ERROR_CHECK(nvs_flash_init());
-    init_esp_now();
+
+
+            ESP_LOGE(TAG,"THiS iS MAINNNNN ");
+
+    // ESP_ERROR_CHECK(nvs_flash_init());
+    wifi_init();
+
+    // init_esp_now();
+
+    // wifi_init_sta("Hoai Nam","123456789");
     // set_wifi_max_tx_power();
     // peer_info.encrypt = true;
     // memcpy(peer_info.lmk, lmk, 16);

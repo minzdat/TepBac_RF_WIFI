@@ -75,8 +75,10 @@ void recv_callback(const esp_now_recv_info_t *recv_info, const uint8_t *data, in
     }
     }
 
-    // memcpy(mac_s,recv_info->src_addr, 6);
+    memcpy(mac_s,recv_info->src_addr, 6);
     memcpy(peer_info.peer_addr, recv_info->src_addr, 6);
+        // esp_now_set_peer_rate_config(recv_info->src_addr,);
+
     esp_now_mod_peer(&peer_info);
     esp_now_send(recv_info->src_addr, response, sizeof(response));
     ESP_LOGI(TAG,"Send to "MACSTR,MAC2STR(recv_info->src_addr));
@@ -127,9 +129,11 @@ void init_esp_now() {
 void app_main(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
     init_esp_now();
+
 memcpy(peer_broadcast.peer_addr, broadcast_mac, 6);
 esp_now_add_peer(&peer_broadcast);
-while (1){
+
+while (check_en){
     // if (check_en){
     uint8_t pair_request[50] ="connect_to_me";
     ESP_LOGI(TAG,"Send to broadcast: %s",pair_request);

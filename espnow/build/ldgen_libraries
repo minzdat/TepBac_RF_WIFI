@@ -64,3 +64,6 @@ D:/esp32/espnow/build/esp-idf/touch_element/libtouch_element.a
 D:/esp32/espnow/build/esp-idf/usb/libusb.a
 D:/esp32/espnow/build/esp-idf/wifi_provisioning/libwifi_provisioning.a
 D:/esp32/espnow/build/esp-idf/main/libmain.a
+D:/esp32/espnow/build/esp-idf/Global/libGlobal.a
+D:/esp32/espnow/build/esp-idf/Wifi/libWifi.a
+D:/esp32/espnow/build/esp-idf/Ota/libOta.a
